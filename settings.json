@@ -1,0 +1,6 @@
+{
+    "serialport": "COM3",
+    "webserver": {
+        "port": 3000
+    }
+}
