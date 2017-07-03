@@ -23,7 +23,7 @@ else {
 
 function connect(portName) {
     var port = new SerialPort(portName, {
-        baudRate: 115200
+        baudRate: settings.baudRate
     });
 
     // port.on('open', function () {
@@ -46,6 +46,8 @@ var theshold = 0;
 var dataLenth = 1000;
 
 function addNewData(byte) {
+    // calcFreq(byte);
+
     receivedData.push(byte);
 
     if (receivedData.length > dataLenth + 500
@@ -55,7 +57,22 @@ function addNewData(byte) {
     }
 }
 
+var waveLength = 0;
+var lastByte = 0;
 
+function calcFreq(byte) {
+    waveLength++;
+    if (byte == 0 && byte != lastByte) {
+        var bytesPerSec = settings.baudRate / 8;
+        var freq = 1000 / ((1 / bytesPerSec * waveLength) * 1000);
+        waveLength = 0;
+
+        console.log(freq);
+    }
+    lastByte = byte;
+}
+
+calcFreq();
 
 // setInterval(function () {
 //     console.log(receivedData.length);
