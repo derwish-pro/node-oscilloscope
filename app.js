@@ -35,19 +35,26 @@ function connect(portName) {
     // })
 
     port.on('data', function (buffer) {
-
-        if (receivedData.length > 1000) {
-            io.emit('new data', receivedData);
-            receivedData = [];
-
-        }
-
         var data = new Uint8Array(buffer);
         data.forEach(function (el) {
-            receivedData.push(el);
+            addNewData(el);
         })
     });
 }
+
+var theshold = 0;
+var dataLenth = 1000;
+
+function addNewData(byte) {
+    receivedData.push(byte);
+
+    if (receivedData.length > dataLenth + 500
+        || receivedData.length >= dataLenth && byte <= theshold) {
+        io.emit('new data', receivedData);
+        receivedData = [];
+    }
+}
+
 
 
 // setInterval(function () {
