@@ -37,7 +37,9 @@ function connect(portName) {
     port.on('data', function (buffer) {
 
         if (receivedData.length > 1000) {
+            io.emit('new data', receivedData);
             receivedData = [];
+
         }
 
         var data = new Uint8Array(buffer);
@@ -59,8 +61,8 @@ io.on('connection', function (socket) {
     console.log("new connection");
 
     socket.on('get data', function (msg) {
-        console.log(receivedData);
-        io.emit('new data', receivedData);
+        // console.log(receivedData);
+        // io.emit('new data', receivedData);
     });
 });
 

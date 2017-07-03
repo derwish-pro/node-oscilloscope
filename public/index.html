@@ -31,10 +31,10 @@
 
 <script type="text/javascript">
 
-
+var socket;
 
     $(function () {
-        var socket = io();
+        socket = io();
         
         socket.emit("get data");
 
@@ -47,14 +47,19 @@
                 chartData.push([x,y]);
             }
 
-            console.log(chartData);
+            // console.log(chartData);
 
-		var d2 = [[0, 3], [4, 8], [8, 5], [9, 13],[10, 3], [14, 8], [18, 5], [29, 13],[20, 3], [34, 8], [38, 5], [9, 13]];
+		// var d2 = [[0, 3], [4, 8], [8, 5], [9, 13],[10, 3], [14, 8], [18, 5], [29, 13],[20, 3], [34, 8], [38, 5], [9, 13]];
 
-
-		$.plot("#placeholder", [chartData]);
+		    $.plot("#placeholder", [chartData]);
         });
+
+    //           setInterval(function(){
+    //     socket.emit("get data");
+    //   },10);
       });
+
+
 </script>
 </body>
 </html>
