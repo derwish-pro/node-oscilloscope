@@ -5,55 +5,35 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+
+
+var SYNC_TRESHOLD = 0;
+var FRAME_LENGTH = 1000;
+var FPS_LIMIT = 5
+
+
+var lastFrameTime = new Date();
 var receivedData = [];
 
-if (settings.serialport) {
-    connect(settings.serialport);
-}
-else {
-    SerialPort.list(function (err, ports) {
-        ports.forEach(function (port) {
-            if (port.manufacturer == 'Arduino LLC (www.arduino.cc)') {
-                connect(port.comName);
-            }
-        })
-    });
-}
-
-
-function connect(portName) {
-    var port = new SerialPort(portName, {
-        baudRate: settings.baudRate
-    });
-
-    // port.on('open', function () {
-    //     console.log('Port ' + portName + ' opened');
-    // });
-
-    // port.on('error', function (err) {
-    //     console.log('Error: ', err.message);
-    // })
-
-    port.on('data', function (buffer) {
-        var data = new Uint8Array(buffer);
-        data.forEach(function (el) {
-            addNewData(el);
-        })
-    });
-}
-
-var theshold = 0;
-var dataLenth = 1000;
 
 function addNewData(byte) {
     // calcFreq(byte);
 
     receivedData.push(byte);
 
-    if (receivedData.length > dataLenth + 500
-        || receivedData.length >= dataLenth && byte <= theshold) {
-        io.emit('new data', receivedData);
+    //sync image    
+    if (receivedData.length > FRAME_LENGTH * 1.5
+        || receivedData.length >= FRAME_LENGTH && byte <= SYNC_TRESHOLD) {
+
+
+        //check FPS
+        var elapsedTime = new Date() - lastFrameTime;
+        if (elapsedTime > 1000 / FPS_LIMIT) {
+            io.emit('new data', receivedData);
+            lastFrameTime = new Date();
+        }
         receivedData = [];
+
     }
 }
 
@@ -74,10 +54,7 @@ function calcFreq(byte) {
 
 calcFreq();
 
-// setInterval(function () {
-//     console.log(receivedData.length);
-//     receivedData = [];
-// }, 1000);
+
 
 
 
@@ -95,3 +72,50 @@ app.use(express.static('public'));
 http.listen(settings.webserver.port, function () {
     console.log('Server started at port ' + settings.webserver.port);
 });
+
+
+
+if (settings.serialport) {
+    connectToSerialPort(settings.serialport);
+}
+else {
+    SerialPort.list(function (err, ports) {
+        ports.forEach(function (port) {
+            if (port.manufacturer == 'Arduino LLC (www.arduino.cc)') {
+                connectToSerialPort(port.comName);
+            }
+        })
+    });
+}
+
+
+function connectToSerialPort(portName) {
+    var port = new SerialPort(portName, {
+        baudRate: settings.baudRate
+    });
+
+    port.on('open', function () {
+        console.log('Port ' + portName + ' opened');
+    });
+
+    port.on('error', function (err) {
+        console.log('Error: ', err.message);
+    })
+
+    port.on('data', function (buffer) {
+        var data = new Uint8Array(buffer);
+        data.forEach(function (el) {
+            addNewData(el);
+        })
+    });
+}
+
+
+//send fake data
+// var fakeData = 0;
+// setInterval(function () {
+//     for (var i = 0; i < 100; i++) {
+//         fakeData++;
+//         addNewData(fakeData);
+//     }
+// }, 5);

@@ -31,7 +31,7 @@
 
 <script type="text/javascript">
 
-var socket;
+    var socket;
 
     $(function () {
         socket = io();
@@ -47,10 +47,7 @@ var socket;
                 chartData.push([x,y]);
             }
 
-            // console.log(chartData);
-
 		// var d2 = [[0, 3], [4, 8], [8, 5], [9, 13],[10, 3], [14, 8], [18, 5], [29, 13],[20, 3], [34, 8], [38, 5], [9, 13]];
-
 		    $.plot("#placeholder", [chartData]);
         });
 
