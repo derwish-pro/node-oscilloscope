@@ -36,23 +36,32 @@ function connect(portName) {
 
     port.on('data', function (buffer) {
 
+        if (receivedData.length > 1000) {
+            receivedData = [];
+        }
+
         var data = new Uint8Array(buffer);
-        receivedData = data[0];
-        // console.log(data[0])
-
-
+        data.forEach(function (el) {
+            receivedData.push(el);
+        })
     });
 }
 
 
-setInterval(function () {
-    io.emit('new data', receivedData);
-}, 100);
+// setInterval(function () {
+//     console.log(receivedData.length);
+//     receivedData = [];
+// }, 1000);
 
 
 
 io.on('connection', function (socket) {
-    console.log("new connection")
+    console.log("new connection");
+
+    socket.on('get data', function (msg) {
+        console.log(receivedData);
+        io.emit('new data', receivedData);
+    });
 });
 
 app.use(express.static('public'));
